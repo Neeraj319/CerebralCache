@@ -1,6 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"go.uber.org/zap"
+)
+
+const (
+	INTEGER_MAP = iota
+	STRING_MAP
+	INTEGER_ARRAY_MAP
+	STRING_ARRAY_MAP
+)
 
 type MainMap struct {
 	INTEGER_MAP       map[string]int
@@ -19,18 +28,22 @@ func createMainMap() MainMap {
 }
 
 func (m *MainMap) setInteger(key string, value int) {
+	zap.L().Info("Setting Integer", zap.String("key", key), zap.Int("value", value))
 	m.INTEGER_MAP[key] = value
 }
 
 func (m *MainMap) setString(key string, value string) {
+	zap.L().Info("Setting String", zap.String("key", key), zap.String("value", value))
 	m.STRING_MAP[key] = value
 }
 
 func (m *MainMap) setIntegerArray(key string, value []int) {
+	zap.L().Info("Setting Integer Array", zap.String("key", key), zap.Ints("value", value))
 	m.INTEGER_ARRAY_MAP[key] = value
 }
 
 func (m *MainMap) setStringArray(key string, value []string) {
+	zap.L().Info("Setting String Array", zap.String("key", key), zap.Strings("value", value))
 	m.STRING_ARRAY_MAP[key] = value
 }
 
