@@ -47,3 +47,24 @@ func (m *MainMap) getIntegerArray(key string) []int {
 func (m *MainMap) getStringArray(key string) []string {
 	return m.STRING_ARRAY_MAP[key]
 }
+
+func (m *MainMap) getValue(key string) interface{} {
+	stringValue := m.getString(key)
+	if stringValue != "" {
+		return stringValue
+	}
+	intValue := m.getInteger(key)
+	if intValue != 0 {
+		return intValue
+	}
+	stringArrayValue := m.getStringArray(key)
+	if len(stringArrayValue) > 0 {
+		return intValue
+	}
+	intArrayValue := m.getIntegerArray(key)
+	if len(stringArrayValue) > 0 {
+		return intArrayValue
+	}
+	return nil
+
+}

@@ -14,6 +14,7 @@ func main() {
 	logger.Info("Application Initilized")
 	global_map.setStringArray("names", []string{"hello", "how are you"})
 	global_map.setStringArray("songs", []string{"wish you were here", "as tears go by"})
+	global_map.setInteger("hehehe", 1)
 
 	logger.Info("Application Closing....")
 }
