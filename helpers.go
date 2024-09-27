@@ -6,15 +6,15 @@ import (
 
 func CreateMainMap() MainMap {
 	return MainMap{
-		INTEGER_MAP:       make(map[string]int),
+		INTEGER_MAP:       make(map[string]int64),
 		STRING_MAP:        make(map[string]string),
 		STRING_ARRAY_MAP:  make(map[string][]string),
-		INTEGER_ARRAY_MAP: make(map[string][]int),
+		INTEGER_ARRAY_MAP: make(map[string][]int64),
 	}
 }
 
-func (m *MainMap) setInteger(key string, value int) {
-	zap.L().Info("Setting Integer", zap.String("key", key), zap.Int("value", value))
+func (m *MainMap) setInteger(key string, value int64) {
+	zap.L().Info("Setting Integer", zap.String("key", key), zap.Int64("value", value))
 	m.INTEGER_MAP[key] = value
 }
 
@@ -23,8 +23,8 @@ func (m *MainMap) setString(key string, value string) {
 	m.STRING_MAP[key] = value
 }
 
-func (m *MainMap) setIntegerArray(key string, value []int) {
-	zap.L().Info("Setting Integer Array", zap.String("key", key), zap.Ints("value", value))
+func (m *MainMap) setIntegerArray(key string, value []int64) {
+	zap.L().Info("Setting Integer Array", zap.String("key", key), zap.Int64s("value", value))
 	m.INTEGER_ARRAY_MAP[key] = value
 }
 
@@ -33,14 +33,14 @@ func (m *MainMap) setStringArray(key string, value []string) {
 	m.STRING_ARRAY_MAP[key] = value
 }
 
-func (m *MainMap) getInteger(key string) int {
+func (m *MainMap) getInteger(key string) int64 {
 	return m.INTEGER_MAP[key]
 }
 
 func (m *MainMap) getString(key string) string {
 	return m.STRING_MAP[key]
 }
-func (m *MainMap) getIntegerArray(key string) []int {
+func (m *MainMap) getIntegerArray(key string) []int64 {
 	return m.INTEGER_ARRAY_MAP[key]
 }
 
