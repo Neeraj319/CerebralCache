@@ -35,8 +35,12 @@ func (m *MainMap) setStringArray(key string, value []string) {
 }
 
 func main() {
+	logger := GetLogger()
+	defer logger.Sync()
 	global_map := createMainMap()
+	logger.Info("Application Initilized")
 	global_map.setStringArray("names", []string{"hello", "how are you"})
 	global_map.setStringArray("songs", []string{"wish you were here", "as tears go by"})
-	fmt.Println("string array map", global_map.STRING_ARRAY_MAP)
+
+	logger.Info("Application Closing....")
 }
