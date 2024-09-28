@@ -10,3 +10,5 @@ var STRING_ARRAY_TYPE = 0x03
 var INTEGER_ARRAY_TYPE = 0x03
 
 var FILE_HEADER string = "IDKMAN"
+
+var END_OF_FILE int32 = -1

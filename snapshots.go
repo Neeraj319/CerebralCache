@@ -3,9 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"go.uber.org/zap"
+	"fmt"
+	"io"
 	"os"
 	"sync"
+
+	"go.uber.org/zap"
 )
 
 func createFileHeader() ([]byte, error) {
@@ -109,12 +112,24 @@ func createBytesForSnapShot(mainMap MainMap) []byte {
 	return contentBytes
 }
 
+func readSnapShotFile() {
+	f, err := os.Open(SNAPSHOT_FILE_NAME)
+	if err != nil {
+		zap.L().Error("Error reading snap shot file", zap.Error(err))
+	}
+	b1 := make([]byte, 1024)
+	n1, err := f.Read(b1)
+	fmt.Println("content", n1)
+}
+
 func takeSnapShot(wg *sync.WaitGroup, mainMap MainMap) {
 	defer wg.Done()
-	file, _ := os.Create("something.bin")
+	file, _ := os.Create(SNAPSHOT_FILE_NAME)
 	value := createBytesForSnapShot(mainMap)
+	value = append(value, byte(END_OF_FILE))
 	file.Write(value)
 	file.Close()
+	readSnapShotFile()
 }
 
 func RunSnapShotTaker(mainMap MainMap) {
