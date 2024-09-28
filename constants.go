@@ -3,3 +3,10 @@ package main
 var SNAPSHOT_FILE_NAME string = "snapshot"
 
 var DEFAULT_SNAP_SHOT_INTERVAL = 10
+
+var STRING_TYPE = 0x01
+var INTEGER_TYPE = 0x02
+var STRING_ARRAY_TYPE = 0x03
+var INTEGER_ARRAY_TYPE = 0x03
+
+var FILE_HEADER string = "IDKMAN"

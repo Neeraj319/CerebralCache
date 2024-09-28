@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/binary"
-	"fmt"
 	"os"
 )
 
@@ -17,17 +15,14 @@ func main() {
 	logger := GetLogger()
 	f, _ := os.Create("file.bin")
 	defer logger.Sync()
-	global_map := CreateMainMap()
+	globalMap := CreateMainMap()
 	logger.Info("Application Initilized")
-	global_map.setStringArray("names", []string{"hello", "how are you"})
-	global_map.setStringArray("songs", []string{"wish you were here", "as tears go by"})
-	global_map.setInteger("hehehe", 1)
-	global_map.setString("name", "hero")
+	globalMap.setStringArray("names", []string{"hello", "how are you"})
+	globalMap.setStringArray("songs", []string{"wish you were here", "as tears go by"})
+	globalMap.setInteger("hehehe", 1)
+	globalMap.setString("name", "hero")
 
 	logger.Info("Application Closing....")
-	a := []byte(global_map.getString("name"))
-	fmt.Println("a is", a)
-	err := binary.Write(f, binary.LittleEndian, global_map.getString("name"))
-	fmt.Println("error is", err)
+	RunSnapShotTaker(globalMap)
 	f.Close()
 }
