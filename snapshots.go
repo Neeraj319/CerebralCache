@@ -59,8 +59,40 @@ func convertStringMapToBin(mainMap MainMap) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
+func convertIntegerMapToBinary(minmap MainMap) ([]byte, error) {
+	var buffer bytes.Buffer
+	integerMap := minmap.INTEGER_MAP
+	for key, value := range integerMap {
+		keyBytes := []byte(key)
+
+		// write the type of the value
+		if err := binary.Write(&buffer, binary.LittleEndian, int32(INTEGER_TYPE)); err != nil {
+			return nil, err
+		}
+		buffer.WriteString("\r\n")
+
+		// write the length of the key
+		if err := binary.Write(&buffer, binary.LittleEndian, int32(len(keyBytes))); err != nil {
+			return nil, err
+		}
+		buffer.WriteString("\r\n")
+
+		// write the key
+		if err := binary.Write(&buffer, binary.LittleEndian, keyBytes); err != nil {
+			return nil, err
+		}
+		buffer.WriteString("\r\n")
+		// write the actual value
+		if err := binary.Write(&buffer, binary.LittleEndian, (value)); err != nil {
+			return nil, err
+		}
+		buffer.WriteString("\r\n")
+	}
+	return buffer.Bytes(), nil
+}
+
 func createBytesForSnapShot(mainMap MainMap) []byte {
-	fileHeader, err := createFileHeader()
+	contentBytes, err := createFileHeader()
 	if err != nil {
 		zap.L().Error("Failed to create file header", zap.Error(err))
 	}
@@ -68,8 +100,13 @@ func createBytesForSnapShot(mainMap MainMap) []byte {
 	if err != nil {
 		zap.L().Error("Failed creating string map bin", zap.Error(err))
 	}
-	fileHeader = append(fileHeader, stringBin...)
-	return fileHeader
+	contentBytes = append(contentBytes, stringBin...)
+	integerBin, err := convertIntegerMapToBinary(mainMap)
+	if err != nil {
+		zap.L().Error("Failed creating integer map bin", zap.Error(err))
+	}
+	contentBytes = append(contentBytes, integerBin...)
+	return contentBytes
 }
 
 func takeSnapShot(wg *sync.WaitGroup, mainMap MainMap) {

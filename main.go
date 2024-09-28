@@ -1,9 +1,5 @@
 package main
 
-import (
-	"os"
-)
-
 type MainMap struct {
 	INTEGER_MAP       map[string]int64
 	STRING_MAP        map[string]string
@@ -13,7 +9,6 @@ type MainMap struct {
 
 func main() {
 	logger := GetLogger()
-	f, _ := os.Create("file.bin")
 	defer logger.Sync()
 	globalMap := CreateMainMap()
 	logger.Info("Application Initilized")
@@ -21,8 +16,10 @@ func main() {
 	globalMap.setStringArray("songs", []string{"wish you were here", "as tears go by"})
 	globalMap.setInteger("hehehe", 1)
 	globalMap.setString("name", "hero")
+	globalMap.setInteger("minusOne", -1)
+	globalMap.setInteger("plus2", 2)
+	globalMap.setInteger("plus3", 3)
 
-	logger.Info("Application Closing....")
 	RunSnapShotTaker(globalMap)
-	f.Close()
+	logger.Info("Application Closing....")
 }
