@@ -1,1 +1,1 @@
-simple hash map storage.
+simple key value storage.
