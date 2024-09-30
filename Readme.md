@@ -1,1 +1,1 @@
-# I haven't thought of a name for this
+simple hash map storage.
