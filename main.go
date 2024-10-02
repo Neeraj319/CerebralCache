@@ -12,14 +12,14 @@ func main() {
 	defer logger.Sync()
 	globalMap := CreateMainMap()
 	logger.Info("Application Initilized")
-	// globalMap.setStringArray("names", []string{"hello", "how are you"})
-	// globalMap.setStringArray("songs", []string{"wish you were here", "as tears go by"})
 
 	globalMap.setInteger("thisisveryveryveryveryveryverylong", int64(458234092380598235))
 	globalMap.setInteger("minusOne", int64(-1))
 	globalMap.setInteger("plus2", int64(2))
 	globalMap.setInteger("plus3", int64(3))
-	// globalMap.setString("name", "hero")
+	// globalMap.setInteger("plus10", int64(10))
+	// globalMap.setInteger("one hundred", int64(100))
+	// globalMap.setInteger("hehehehe", int64(69))
 
 	RunSnapShotTaker(globalMap)
 	logger.Info("Application Closing....")

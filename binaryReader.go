@@ -68,7 +68,7 @@ func (reader *BinaryReader) readMoreBytes() error {
 	if error != nil {
 		return error
 	}
-	toSkipAt := reader.currentPointer - MAX_BYTES_AT_TIME
+	toSkipAt := reader.currentPointer - reader.currentBytesLength
 	reader.resetCurrentPointer()
 	reader.increaseCurrentPointer(toSkipAt)
 	return nil
@@ -79,32 +79,61 @@ func (reader *BinaryReader) increaseCurrentPointer(increaseTo int) {
 
 func (reader *BinaryReader) getInt64DataFromBlock() (int64, error) {
 	if reader.willPointerGoBeyondLimit(8) {
-		err := reader.readMoreBytes()
+		fmt.Println("Pointer goes beyond the limit ofc")
+		remaningBytes := make([]byte, MAX_BYTES_AT_TIME)
+		transferBytes(reader.bytesAtATime[reader.currentPointer:], remaningBytes, 0)
+		bytesToReadFromFile := reader.currentPointer
+		newBytes := make([]byte, bytesToReadFromFile)
+		l, err := reader.readWithOtherByteArray(newBytes)
+		if l < 8 {
+			return 0, fmt.Errorf("String length didn't match with the specified length, expected: %d got: %d", 8, l)
+		}
 		if err != nil {
 			return 0, err
 		}
+		transferBytes(reader.bytesAtATime, remaningBytes, (reader.currentBytesLength-reader.currentPointer)-1)
+		// fmt.Println("new bytes that were read are", newBytes, "previous bytes are", remaningBytes)
+		// err := reader.readMoreBytes()
+		// fmt.Println("Read more bytes", reader.bytesAtATime, reader.currentPointer)
+		// if err != nil {
+		// 	return 0, err
+		// }
 	}
 	from := reader.currentPointer
 	reader.increaseCurrentPointer(8)
 	to := reader.currentPointer
 	return int64(binary.LittleEndian.Uint64(reader.bytesAtATime[from:to])), nil
 }
+func transferBytes(fromBytes []byte, toBytes []byte, indx int) {
+	for _, value := range fromBytes {
+		toBytes[indx] = value
+		indx++
+	}
+}
 
 func (reader *BinaryReader) getStringDataFromBlock(stringLength int64) (string, error) {
 	bytes := make([]byte, stringLength)
 	if reader.willPointerGoBeyondLimit(int(stringLength)) {
-		bytes = append(bytes, reader.bytesAtATime[reader.currentPointer:]...)
-		l, err := reader.readWithOtherByteArray(bytes)
-		if l < int(stringLength) {
+		// fmt.Println("Pointer goes beyond the limit wawa")
+		transferBytes(reader.bytesAtATime[reader.currentPointer:], bytes, 0)
+		// fmt.Println("While string pointer goes beyond limit now the bytes are", bytes)
+		spaceRemaning := (reader.currentPointer + int(stringLength)) - reader.currentBytesLength
+		remaningByteToRead := make([]byte, spaceRemaning)
+		l, err := reader.readWithOtherByteArray(remaningByteToRead)
+		// fmt.Println("Here after reading", remaningByteToRead, bytes, spaceRemaning)
+		if l < spaceRemaning {
 			return "", fmt.Errorf("String length didn't match with the specified length, expected: %d got: %d", stringLength, l)
 		}
+		transferBytes(remaningByteToRead, bytes, spaceRemaning-1)
 		if err != nil {
 			return "", nil
 		}
+		reader.increaseCurrentPointer(spaceRemaning)
+		return string(bytes), nil
 	} else {
 		from := reader.currentPointer
 		bytes = append(bytes, reader.bytesAtATime[from:from+int(stringLength)]...)
+		reader.increaseCurrentPointer(int(stringLength) + 1)
+		return string(bytes), nil
 	}
-	reader.increaseCurrentPointer(int(stringLength) + 1)
-	return string(bytes), nil
 }

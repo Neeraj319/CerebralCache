@@ -134,30 +134,30 @@ func readSnapShotFile() {
 	}
 	reader.skipBlockSeperator()
 	for {
-		_, err := reader.getInt64DataFromBlock()
+		blockValueType, err := reader.getInt64DataFromBlock()
 		if err != nil {
 			zap.L().Error("Error while reading snapshot", zap.Error(err))
 			return
 		}
-		// fmt.Println("Block value type", blockValueType, "current pointer", reader.currentPointer)
+		fmt.Println("Block value type", blockValueType, "current pointer", reader.currentPointer)
 		keyLength, err := reader.getInt64DataFromBlock()
 		if err != nil {
 			zap.L().Error("Error while reading snapshot", zap.Error(err))
 			return
 		}
-		// fmt.Println("Key length", keyLength, "current pointer", reader.currentPointer)
+		fmt.Println("Key length", keyLength, "current pointer", reader.currentPointer)
 		key, err := reader.getStringDataFromBlock(keyLength)
 		if err != nil {
 			zap.L().Error("Error while reading snapshot", zap.Error(err))
 			return
 		}
-		// fmt.Println("key is", key, reader.currentPointer)
+		fmt.Println("key is", key, reader.currentPointer)
 		blockValue, err := reader.getInt64DataFromBlock()
 		if err != nil {
 			zap.L().Error("Error while reading snapshot", zap.Error(err))
 			return
 		}
-		// fmt.Println("block value is", blockValue, reader.currentPointer)
+		fmt.Println("block value is", blockValue, reader.currentPointer)
 		fmt.Println("----------------------------------------------")
 		fmt.Println(key, ":", blockValue)
 		fmt.Println("==============================================")
@@ -169,6 +169,14 @@ func readSnapShotFile() {
 	}
 }
 
+func showALlbytes() {
+	file, _ := os.Open(SNAPSHOT_FILE_NAME)
+	bytes := make([]byte, 200)
+	file.Read(bytes)
+	fmt.Println("All the bytes in the file are", bytes)
+	file.Close()
+}
+
 func takeSnapShot(wg *sync.WaitGroup, mainMap MainMap) {
 	defer wg.Done()
 	// file, _ := os.Create(SNAPSHOT_FILE_NAME)
@@ -177,6 +185,7 @@ func takeSnapShot(wg *sync.WaitGroup, mainMap MainMap) {
 	// fmt.Println(value, "======")
 	// file.Write(value)
 	// file.Close()
+	showALlbytes()
 	readSnapShotFile()
 }
 
