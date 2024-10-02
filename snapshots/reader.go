@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"in-memory-store/constants"
+	"in-memory-store/schemas"
 	"io"
 	"os"
 
@@ -87,7 +88,7 @@ func handleError(err error, context string) bool {
 	return false
 }
 
-func ReadSnapShotFile() {
+func ReadSnapShotFile(mainMap *schemas.MainMap) {
 	f, err := os.Open(constants.SNAPSHOT_FILE_NAME)
 	defer f.Close()
 	if err != nil {
@@ -120,8 +121,7 @@ func ReadSnapShotFile() {
 			if handleError(err, "Error while reading block value") {
 				return
 			}
-			fmt.Println("----------------------------------------------")
-			fmt.Println(key, ":", blockValue)
+			mainMap.SetInteger(key, blockValue)
 		} else if blockValueType == int64(constants.STRING_TYPE) {
 			valueLength, err := reader.getInt64DataFromBlock()
 			if handleError(err, "Error while reading block value") {
@@ -131,8 +131,7 @@ func ReadSnapShotFile() {
 			if handleError(err, "Error while reading block value") {
 				return
 			}
-			fmt.Println("----------------------------------------------")
-			fmt.Println(key, ":", blockValue)
+			mainMap.SetString(key, blockValue)
 		}
 
 		err = reader.skipBlockSeperator()

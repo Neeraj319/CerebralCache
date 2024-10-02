@@ -10,7 +10,7 @@ func main() {
 	defer logger.Sync()
 	globalMap := schemas.CreateMainMap()
 	logger.Info("Application Initilized")
-	snapshots.ReadSnapShotFile()
+	snapshots.ReadSnapShotFile(&globalMap)
 
 	globalMap.SetInteger("thisisveryveryveryveryveryverylong", int64(458234092380598235))
 	globalMap.SetInteger("minusOne", int64(-1))
@@ -21,7 +21,6 @@ func main() {
 	globalMap.SetInteger("hehehehe", int64(69))
 	globalMap.SetString("firstString", "this is the value of the first string")
 	globalMap.SetString("New string", "new string")
-
 	snapshots.RunSnapShotTaker(globalMap)
 	logger.Info("Application Closing....")
 }
