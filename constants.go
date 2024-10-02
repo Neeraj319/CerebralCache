@@ -12,3 +12,7 @@ var INTEGER_ARRAY_TYPE = 0x03
 var FILE_HEADER string = "CerebralCache"
 
 var END_OF_FILE int32 = -1
+
+var INT_TYPE_LENGTH = 8
+
+var BLOCK_SEPERATOR_LENGTH = 2

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"io"
 	"os"
 	"sync"
 
@@ -120,14 +119,6 @@ func readSnapShotFile() {
 		return
 	}
 	reader := CreateBinaryReader(f)
-	n, err := reader.readFromFile()
-	if n == 0 {
-		zap.L().Error("No contents in file existing")
-		return
-	}
-	if err != nil && err == io.EOF {
-		zap.L().Error("End of file found exiting", zap.Error(err))
-	}
 	err = reader.skipFileHeader()
 	if err != nil {
 		zap.L().Error("Error skipping file header", zap.Error(err))
@@ -139,25 +130,22 @@ func readSnapShotFile() {
 			zap.L().Error("Error while reading snapshot", zap.Error(err))
 			return
 		}
-		fmt.Println("Block value type", blockValueType, "current pointer", reader.currentPointer)
+		fmt.Println("Block value type", blockValueType)
 		keyLength, err := reader.getInt64DataFromBlock()
 		if err != nil {
 			zap.L().Error("Error while reading snapshot", zap.Error(err))
 			return
 		}
-		fmt.Println("Key length", keyLength, "current pointer", reader.currentPointer)
 		key, err := reader.getStringDataFromBlock(keyLength)
 		if err != nil {
 			zap.L().Error("Error while reading snapshot", zap.Error(err))
 			return
 		}
-		fmt.Println("key is", key, reader.currentPointer)
 		blockValue, err := reader.getInt64DataFromBlock()
 		if err != nil {
 			zap.L().Error("Error while reading snapshot", zap.Error(err))
 			return
 		}
-		fmt.Println("block value is", blockValue, reader.currentPointer)
 		fmt.Println("----------------------------------------------")
 		fmt.Println(key, ":", blockValue)
 		fmt.Println("==============================================")
