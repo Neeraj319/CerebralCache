@@ -1,26 +1,27 @@
 package main
 
-type MainMap struct {
-	INTEGER_MAP       map[string]int64
-	STRING_MAP        map[string]string
-	INTEGER_ARRAY_MAP map[string][]int64
-	STRING_ARRAY_MAP  map[string][]string
-}
+import (
+	"in-memory-store/schemas"
+	"in-memory-store/snapshots"
+)
 
 func main() {
 	logger := GetLogger()
 	defer logger.Sync()
-	globalMap := CreateMainMap()
+	globalMap := schemas.CreateMainMap()
 	logger.Info("Application Initilized")
+	snapshots.ReadSnapShotFile()
 
-	globalMap.setInteger("thisisveryveryveryveryveryverylong", int64(458234092380598235))
-	globalMap.setInteger("minusOne", int64(-1))
-	globalMap.setInteger("plus2", int64(2))
-	globalMap.setInteger("plus3", int64(3))
-	// globalMap.setInteger("plus10", int64(10))
-	// globalMap.setInteger("one hundred", int64(100))
-	// globalMap.setInteger("hehehehe", int64(69))
+	globalMap.SetInteger("thisisveryveryveryveryveryverylong", int64(458234092380598235))
+	globalMap.SetInteger("minusOne", int64(-1))
+	globalMap.SetInteger("plus2", int64(2))
+	globalMap.SetInteger("plus3", int64(3))
+	globalMap.SetInteger("plus10", int64(10))
+	globalMap.SetInteger("one hundred", int64(100))
+	globalMap.SetInteger("hehehehe", int64(69))
+	globalMap.SetString("firstString", "this is the value of the first string")
+	globalMap.SetString("New string", "new string")
 
-	RunSnapShotTaker(globalMap)
+	snapshots.RunSnapShotTaker(globalMap)
 	logger.Info("Application Closing....")
 }
