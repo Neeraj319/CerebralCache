@@ -3,12 +3,11 @@ package snapshots
 import (
 	"bytes"
 	"encoding/binary"
+	"go.uber.org/zap"
 	"in-memory-store/constants"
 	"in-memory-store/schemas"
 	"os"
 	"sync"
-
-	"go.uber.org/zap"
 )
 
 func createFileHeader() (*bytes.Buffer, error) {
@@ -64,7 +63,7 @@ func convertIntegerMapToBinary(minmap schemas.MainMap) ([]byte, error) {
 		keyBytes := []byte(key)
 
 		// write the type of the value
-		if err := binary.Write(&buffer, binary.LittleEndian, int64(constants.INTEGER_TYPE)); err != nil {
+		if err := binary.Write(&buffer, binary.LittleEndian, int64(constants.INTEGER_ARRAY_TYPE)); err != nil {
 			return nil, err
 		}
 		// write the length of the key
@@ -85,6 +84,38 @@ func convertIntegerMapToBinary(minmap schemas.MainMap) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
+func convertIntegerArrayMapToBinary(minmap schemas.MainMap) ([]byte, error) {
+	var buffer bytes.Buffer
+	integerArray := minmap.INTEGER_ARRAY_MAP
+	for key, value := range integerArray {
+		keyBytes := []byte(key)
+
+		// write the type of the value
+		if err := binary.Write(&buffer, binary.LittleEndian, int64(constants.INTEGER_ARRAY_TYPE)); err != nil {
+			return nil, err
+		}
+		// write the length of the key
+		if err := binary.Write(&buffer, binary.LittleEndian, int64(len(keyBytes))); err != nil {
+			return nil, err
+		}
+		// write the key
+		if err := binary.Write(&buffer, binary.LittleEndian, keyBytes); err != nil {
+			return nil, err
+		}
+		buffer.WriteByte(byte(0))
+		// write the length of integer array
+		if err := binary.Write(&buffer, binary.LittleEndian, int64(len(value))); err != nil {
+			return nil, err
+		}
+		// write the actual value
+		if err := binary.Write(&buffer, binary.LittleEndian, value); err != nil {
+			return nil, err
+		}
+		buffer.WriteString("\r\n")
+	}
+	return buffer.Bytes(), nil
+}
+
 func createBytesForSnapShot(mainMap schemas.MainMap) *bytes.Buffer {
 	mainBuffer, err := createFileHeader()
 	if err != nil {
@@ -96,10 +127,15 @@ func createBytesForSnapShot(mainMap schemas.MainMap) *bytes.Buffer {
 	}
 	mainBuffer.Write(integerBinBytes)
 	stringBinBytes, err := convertStringMapToBin(mainMap)
+	mainBuffer.Write(stringBinBytes)
 	if err != nil {
 		zap.L().Error("Failed creating string map bin", zap.Error(err))
 	}
-	mainBuffer.Write(stringBinBytes)
+	integerArrayBytes, err := convertIntegerArrayMapToBinary(mainMap)
+	if err != nil {
+		zap.L().Error("Failed creating integer map bin", zap.Error(err))
+	}
+	mainBuffer.Write(integerArrayBytes)
 	return mainBuffer
 }
 func takeSnapShot(wg *sync.WaitGroup, mainMap schemas.MainMap) {

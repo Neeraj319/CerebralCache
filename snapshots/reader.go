@@ -65,6 +65,23 @@ func (reader *BinaryReader) getInt64DataFromBlock() (int64, error) {
 
 	return int64(binary.LittleEndian.Uint64(bytes)), nil
 }
+func (reader *BinaryReader) getInt64ArrayDataFromBlock(length int64) ([]int64, error) {
+	bytes := make([]byte, length*int64(constants.INT_TYPE_LENGTH))
+	l, err := reader.file.Read(bytes)
+	if err != nil {
+		return nil, err
+	}
+	if l < int(length) {
+		return nil, fmt.Errorf("Expected 8 bytes but found only %d while reading integer", l)
+	}
+	var int64Array []int64
+	for i := 0; i < int(length*int64(constants.INT_TYPE_LENGTH)); i += 8 {
+		int64Value := int64(binary.LittleEndian.Uint64(bytes[i : i+8]))
+		int64Array = append(int64Array, int64Value)
+	}
+
+	return int64Array, nil
+}
 
 func (reader *BinaryReader) getStringDataFromBlock(stringLength int64) (string, error) {
 	bytes := make([]byte, stringLength+1)
@@ -122,13 +139,13 @@ func ReadSnapShotFile(mainMap *schemas.MainMap) {
 
 		if blockValueType == int64(constants.INTEGER_TYPE) {
 			blockValue, err := reader.getInt64DataFromBlock()
-			if handleError(err, "Error while reading block value") {
+			if handleError(err, "Error while reading integer block value") {
 				return
 			}
 			mainMap.SetInteger(key, blockValue)
 		} else if blockValueType == int64(constants.STRING_TYPE) {
 			valueLength, err := reader.getInt64DataFromBlock()
-			if handleError(err, "Error while reading block value") {
+			if handleError(err, "Error while reading string length for block value") {
 				return
 			}
 			blockValue, err := reader.getStringDataFromBlock(valueLength)
@@ -136,6 +153,17 @@ func ReadSnapShotFile(mainMap *schemas.MainMap) {
 				return
 			}
 			mainMap.SetString(key, blockValue)
+		} else if blockValueType == int64(constants.INTEGER_ARRAY_TYPE) {
+			valueLength, err := reader.getInt64DataFromBlock()
+			fmt.Println("Length of array", valueLength)
+			if handleError(err, "Error while reading integer array length for block value") {
+				return
+			}
+			blockValue, err := reader.getInt64ArrayDataFromBlock(valueLength)
+			if handleError(err, "Error while reading integer array block value") {
+				return
+			}
+			mainMap.SetIntegerArray(key, blockValue)
 		}
 
 		err = reader.skipBlockSeperator()
