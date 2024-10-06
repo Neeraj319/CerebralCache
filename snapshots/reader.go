@@ -100,7 +100,11 @@ func ReadSnapShotFile(mainMap *schemas.MainMap) {
 	if err != nil {
 		zap.L().Error("Error skipping file header", zap.Error(err))
 	}
-	reader.skipBlockSeperator()
+	version, err := reader.getInt64DataFromBlock()
+	if handleError(err, "Error while reading version") {
+		return
+	}
+	zap.L().Info("Reading snapshot file", zap.Int64("version", version))
 	for {
 		blockValueType, err := reader.getInt64DataFromBlock()
 		if handleError(err, "Error while reading block type") {

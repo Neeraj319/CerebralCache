@@ -17,7 +17,7 @@ func createFileHeader() (*bytes.Buffer, error) {
 		return nil, err
 	}
 
-	if _, err := buffer.WriteString("\r\n"); err != nil {
+	if err := binary.Write(&buffer, binary.LittleEndian, int64(constants.CURRENT_VERSION)); err != nil {
 		return nil, err
 	}
 	return &buffer, nil
@@ -111,6 +111,7 @@ func takeSnapShot(wg *sync.WaitGroup, mainMap schemas.MainMap) {
 	buffer := createBytesForSnapShot(mainMap)
 	bytes := buffer.Bytes()
 	file.Write(bytes)
+	zap.L().Info("Snapshot taken successfully")
 	file.Close()
 }
 func RunSnapShotTaker(mainMap schemas.MainMap) {
